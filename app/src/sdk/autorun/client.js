@@ -8,11 +8,12 @@ export class ApiBusinessError extends Error {
 
 export class AutorunClient {
   /**
-   * @param {{ baseURL: string, headers?: Record<string, string>, fetchImpl?: typeof fetch }} options
+   * @param {{ baseURL: string, headers?: Record<string, string>, fetchImpl?: typeof fetch, timeoutMs?: number }} options
    */
   constructor(options) {
     this.baseURL = options.baseURL.replace(/\/+$/, '');
     this.headers = options.headers || {};
+    this.timeoutMs = Number(options.timeoutMs || 8000);
     const rawFetch = options.fetchImpl || globalThis.fetch;
     this.fetchImpl = (...args) => rawFetch.call(globalThis, ...args);
   }
@@ -119,19 +120,39 @@ export class AutorunClient {
   }
 
   async request(path, init, requestId) {
+    const hasBody = init.body !== undefined && init.body !== null;
     const headers = {
-      'Content-Type': 'application/json',
       ...this.headers,
       ...(init.headers || {}),
     };
+    if (hasBody && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
     if (requestId) {
       headers['X-Request-Id'] = requestId;
     }
 
-    const resp = await this.fetchImpl(`${this.baseURL}${path}`, {
-      ...init,
-      headers,
-    });
+    const controller =
+      typeof AbortController !== 'undefined' && this.timeoutMs > 0 ? new AbortController() : null;
+    const timeoutId = controller
+      ? setTimeout(() => controller.abort(), this.timeoutMs)
+      : null;
+
+    let resp;
+    try {
+      resp = await this.fetchImpl(`${this.baseURL}${path}`, {
+        ...init,
+        headers,
+        signal: controller?.signal,
+      });
+    } catch (error) {
+      if (error?.name === 'AbortError') {
+        throw new Error('Scheduled task service request timed out');
+      }
+      throw new Error(error?.message || 'Scheduled task service is unavailable');
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
 
     if (!resp.ok) {
       throw new Error(`HTTP error: ${resp.status}`);

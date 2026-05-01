@@ -20,16 +20,22 @@ const crypto = require('crypto');
 //  1. 应用初始化
 // ──────────────────────────────────────────────
 const app = express();
-app.use(express.json());
 
 // CORS
 app.use((req, res, next) => {
-  res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Headers', '*');
-  res.set('Access-Control-Allow-Methods', '*');
-  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  res.set({
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    'Access-Control-Allow-Headers': req.headers['access-control-request-headers'] || 'Authorization,Content-Type,X-Request-Id',
+    'Access-Control-Max-Age': '86400',
+    Vary: 'Origin, Access-Control-Request-Headers',
+  });
+
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
+
+app.use(express.json());
 
 // ──────────────────────────────────────────────
 //  2. 配置
@@ -138,6 +144,18 @@ function genSign({ appKey, appSecret, query = null, body = null }) {
 // MD5 密码哈希
 function md5(str) {
   return crypto.createHash('md5').update(str).digest('hex');
+}
+
+function getUserIdentity(userInfo = {}) {
+  const userId = userInfo.userId || userInfo.id || '';
+  const studentId = userInfo.studentId || '';
+  if (userId) return `user:${userId}`;
+  if (studentId) return `student:${studentId}`;
+  return '';
+}
+
+function isAuthExpiredMessage(message) {
+  return /not_login|unauthorized|token|登录|登陆|其他设备|其它设备|异地/i.test(String(message || ''));
 }
 
 // ──────────────────────────────────────────────
@@ -516,24 +534,47 @@ app.get('/api/maps', (req, res) => {
 });
 
 // 注册/更新定时任务配置（前端保存时调用）
-app.post('/api/register', (req, res) => {
+app.post('/api/register', async (req, res) => {
   const token = req.headers['authorization']?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ success: false, message: 'Unauthorized' });
 
-  const { map_id, enabled, cron: cronExpr } = req.body;
-  if (!tasks[token]) tasks[token] = {};
-  Object.assign(tasks[token], {
-    map_id,
-    enabled: enabled === 1 || enabled === true,
-    cron: cronExpr,
-    last_run_at: tasks[token].last_run_at || null,
-    executed: tasks[token].executed || false,
-    user_info: tasks[token].user_info || null,
-  });
-  saveTasks();
+  try {
+    const { map_id, enabled, cron: cronExpr } = req.body;
+    const userInfo = await getUserInfo(token);
+    const identity = getUserIdentity(userInfo);
 
-  console.log(`[register] 更新任务 token=${token.slice(0, 8)} map=${map_id} cron=${cronExpr} enabled=${enabled}`);
-  res.json({ success: true, data: tasks[token] });
+    if (identity) {
+      for (const [storedToken, task] of Object.entries(tasks)) {
+        if (storedToken === token) continue;
+        if (getUserIdentity(task.user_info) === identity) {
+          delete tasks[storedToken];
+          console.log(`[register] 已清理同账号旧任务 token=${storedToken.slice(0, 8)} identity=${identity}`);
+        }
+      }
+    }
+
+    if (!tasks[token]) tasks[token] = {};
+    Object.assign(tasks[token], {
+      map_id,
+      enabled: enabled === 1 || enabled === true,
+      cron: cronExpr,
+      last_run_at: tasks[token].last_run_at || null,
+      executed: tasks[token].executed || false,
+      user_info: userInfo || tasks[token].user_info || null,
+    });
+    saveTasks();
+
+    console.log(`[register] 更新任务 token=${token.slice(0, 8)} map=${map_id} cron=${cronExpr} enabled=${enabled}`);
+    res.json({ success: true, data: tasks[token] });
+  } catch (err) {
+    if (isAuthExpiredMessage(err.message)) {
+      delete tasks[token];
+      saveTasks();
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+    console.error(`[register] 更新任务失败 token=${token.slice(0, 8)}: ${err.message}`);
+    res.status(500).json({ success: false, message: err.message || 'Register failed' });
+  }
 });
 
 // 查询当前配置
@@ -599,6 +640,13 @@ cron.schedule('* * * * *', async () => {
       console.log(`[cron] ✅ 打卡成功: distance=${result.runDistance}m time=${result.runTime}min desc=${result.resultDesc}`);
     } catch (err) {
       console.error(`[cron] ❌ 打卡失败 token=${token.slice(0, 8)}: ${err.message}`);
+      if (isAuthExpiredMessage(err.message)) {
+        task.enabled = false;
+        task.auth_error_at = now.toISOString();
+        task.last_error = err.message;
+        saveTasks();
+        console.warn(`[cron] 已停用失效 token 的定时任务 token=${token.slice(0, 8)}`);
+      }
     }
   }
 });

@@ -39,6 +39,9 @@ const useAppStateStore = defineStore(
       return fallback;
     };
 
+    const isAuthInvalidMessage = (message) =>
+      /not_login|unauthorized|token|登录|登陆|其他设备|其它设备|异地/i.test(String(message || ''));
+
     const fetchUserData = async (options = {}) => {
       const { background = false } = options;
       const useLoadingState = !(background && !!userInfo.value);
@@ -77,21 +80,33 @@ const useAppStateStore = defineStore(
           }
           return { ok: true, reason: 'ok', message: '' };
         }
+        const failureReason = isAuthInvalidMessage(userRes?.data?.msg)
+          ? 'auth_invalid'
+          : resolveFailureReason(userRes?.data?.code, null);
+        if (failureReason === 'auth_invalid') {
+          clearAllData();
+        }
         return {
           ok: false,
-          reason: resolveFailureReason(userRes?.data?.code, null),
+          reason: failureReason,
           message: userRes?.data?.msg || '登录状态校验失败',
         };
       } catch (error) {
         console.error('Fetch data failed:', error);
         const status = Number(error?.response?.status || 0);
-        const reason = resolveFailureReason(null, status);
+        const message = resolveErrorMessage(error, '');
+        const reason = isAuthInvalidMessage(message)
+          ? 'auth_invalid'
+          : resolveFailureReason(null, status);
         const fallbackMessage =
           reason === 'auth_invalid' ? '登录状态已失效，请重新登录' : '用户数据加载失败';
+        if (reason === 'auth_invalid') {
+          clearAllData();
+        }
         return {
           ok: false,
           reason: reason === 'auth_invalid' ? 'auth_invalid' : 'network_error',
-          message: resolveErrorMessage(error, fallbackMessage),
+          message: message || fallbackMessage,
         };
       } finally {
         if (useLoadingState) {

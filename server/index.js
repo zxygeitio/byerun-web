@@ -5,6 +5,17 @@ const { createLogger, transports, format } = require('winston');
 
 const app = express();
 const port = 3000;
+const upstreamBaseUrl = process.env.UPSTREAM_BASE_URL || 'https://run-lb.tanmasports.com/v1';
+
+function setCorsHeaders(req, res) {
+    res.set({
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': req.headers['access-control-request-headers'] || '*',
+        'Access-Control-Max-Age': '86400',
+        Vary: 'Origin, Access-Control-Request-Headers'
+    });
+}
 
 // 创建 winston 日志记录器
 const logger = createLogger({
@@ -29,47 +40,46 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.use((req, res, next) => {
+    setCorsHeaders(req, res);
     if (req.method === 'OPTIONS') {
-        res.set({
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': '*'
-        });
-        res.sendStatus(200);
-    } else {
-        next();
+        return res.sendStatus(204);
     }
+    next();
 });
 
 app.all('*', async (req, res) => {
     const url = new URL(req.originalUrl, `http://${req.headers.host}`);
-    const backendUrl = 'https://run-lb.tanmasports.com/v1' + url.pathname + url.search;
+    const backendUrl = upstreamBaseUrl + url.pathname + url.search;
 
     logger.info(`Forwarding request to: ${backendUrl}`);
 
     const newHeaders = { ...req.headers };
     delete newHeaders.host;
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
     const init = {
         method: req.method,
         headers: newHeaders,
-        body: req.method === 'GET' ? null : JSON.stringify(req.body)
+        body: req.method === 'GET' || req.method === 'HEAD' ? null : JSON.stringify(req.body),
+        signal: controller.signal
     };
 
     try {
         const response = await fetch(backendUrl, init);
         const body = await response.text();
 
-        res.set({
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': '*'
-        });
-
         res.status(response.status).send(body);
     } catch (error) {
         logger.error(`Error during fetch: ${error.message}`);
-        res.status(500).send('Internal Server Error');
+        const status = error.name === 'AbortError' ? 504 : 502;
+        res.status(status).json({
+            code: status,
+            msg: error.name === 'AbortError' ? 'Proxy request timed out' : 'Proxy upstream unavailable'
+        });
+    } finally {
+        clearTimeout(timeoutId);
     }
 });
 
