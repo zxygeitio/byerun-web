@@ -7,6 +7,7 @@ export const scheduledTaskConfig = {
   apiBaseUrl: import.meta.env.DEV
     ? '/autorunserver'
     : import.meta.env.VITE_AUTORUN_SERVER_BASE || '',
+  enableClubAutomation: import.meta.env.VITE_ENABLE_CLUB_AUTORUN === 'true',
 };
 
 const API_BASE = (scheduledTaskConfig.apiBaseUrl || '').replace(/\/$/, '');

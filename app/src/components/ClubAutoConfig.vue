@@ -137,7 +137,10 @@ const showMessage = inject('showMessage', (message) => alert(message));
 const { token } = useDataStore();
 
 const apiBase = (scheduledTaskConfig.apiBaseUrl || '').replace(/\/$/, '');
-const autorunClient = apiBase ? new AutorunClient({ baseURL: apiBase }) : null;
+const autorunClient =
+  scheduledTaskConfig.enableClubAutomation === true && apiBase
+    ? new AutorunClient({ baseURL: apiBase })
+    : null;
 
 const loading = ref(false);
 const submitting = ref(false);

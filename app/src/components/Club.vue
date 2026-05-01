@@ -176,6 +176,7 @@
               </div>
               <div class="flex items-center gap-2">
                 <span
+                  v-if="clubAutomationEnabled"
                   :class="[
                     'h-6 px-2 rounded-full text-[11px] inline-flex items-center border',
                     clubAutoConfigEnabled
@@ -205,6 +206,7 @@
               class="mt-3 flex items-center justify-between gap-2"
             >
               <button
+                v-if="clubAutomationEnabled"
                 type="button"
                 :disabled="clubAutoConfigToggling"
                 :class="[
@@ -501,7 +503,9 @@ const WEEKDAY_TEXT = {
 const showMessage = inject('showMessage', () => {});
 const { userInfo, token, loading: userLoading, fetchUserData } = useDataStore();
 const autorunApiBase = (scheduledTaskConfig.apiBaseUrl || '').replace(/\/$/, '');
-const autorunClient = autorunApiBase ? new AutorunClient({ baseURL: autorunApiBase }) : null;
+const clubAutomationEnabled = scheduledTaskConfig.enableClubAutomation === true;
+const autorunClient =
+  clubAutomationEnabled && autorunApiBase ? new AutorunClient({ baseURL: autorunApiBase }) : null;
 
 const activeMainTab = ref('activities');
 const activeActivityTab = ref('list');
