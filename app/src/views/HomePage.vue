@@ -20,7 +20,6 @@ import { ref, onMounted, nextTick, inject, provide } from 'vue';
 import SubmitRun from '@/components/SubmitRun.vue';
 import AppHeader from '@/components/layout/AppHeader.vue';
 import { useDataStore } from '@/composables/useDataStore';
-import { preloadAutorunPingMeta } from '@/sdk/autorun';
 
 const { fetchUserData, userInfo } = useDataStore();
 const rootShowMessage = inject('showMessage', null);
@@ -70,7 +69,6 @@ async function refreshUserData(options = { background: true }) {
 
 async function initializePage() {
   await refreshUserData({ background: false });
-  await preloadAutorunPingMeta();
 }
 
 async function handleRunSubmitted() {

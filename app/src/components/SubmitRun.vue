@@ -30,27 +30,9 @@
     <!-- 提交表单 -->
     <form @submit.prevent="onFormSubmit" class="flex-1 flex flex-col min-h-0 overflow-visible">
       <div class="theme-card rounded-2xl w-full box-border mb-5 p-5 form-card-container">
-        <!-- Tab 按钮行 -->
-        <div class="flex items-center mb-4 border-b border-dashed theme-card-divider pb-2">
-          <button
-            v-for="tab in tabs"
-            :key="tab.key"
-            type="button"
-            @click="activeTab = tab.key"
-            :class="[
-              'flex-1 text-base h-8 font-semibold transition-all text-center rounded-full',
-              activeTab === tab.key
-                ? 'theme-text-primary theme-card-soft'
-                : 'submit-tab-inactive border-none',
-            ]"
-          >
-            <i :class="tab.icon" class="mr-2"></i>{{ tab.label }}
-          </button>
-        </div>
-
         <div>
           <!-- 提交记录表单 -->
-          <div v-show="activeTab === 'submit'">
+          <div>
             <div class="form-group mb-4">
               <label class="block text-sm theme-text-secondary mb-2 font-medium">选择地图</label>
               <div
@@ -79,34 +61,7 @@
                   >
                     <div class="route-option-main">
                       <div class="route-option-name">
-                        <span v-if="isCustomRoute(value)" class="route-custom-tag">自定义</span>
                         <span>{{ name }}</span>
-                      </div>
-                      <div v-if="isCustomRoute(value)" class="route-option-actions">
-                        <button
-                          type="button"
-                          class="route-action-btn"
-                          title="重命名"
-                          @click.stop="renameRoute(value)"
-                        >
-                          <i class="ri-edit-line"></i>
-                        </button>
-                        <button
-                          type="button"
-                          class="route-action-btn"
-                          title="修改路线"
-                          @click.stop="editRoute(value)"
-                        >
-                          <i class="ri-route-line"></i>
-                        </button>
-                        <button
-                          type="button"
-                          class="route-action-btn danger"
-                          title="删除"
-                          @click.stop="deleteRoute(value)"
-                        >
-                          <i class="ri-delete-bin-6-line"></i>
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -195,30 +150,14 @@
               </div>
             </transition>
           </div>
-
-          <!-- 定时任务 -->
-          <div v-show="activeTab === 'schedule'" class="space-y-4">
-            <div v-if="schedulePanelMounted">
-              <AutoConfig inline @saved="onAutoConfigSaved" />
-            </div>
-          </div>
         </div>
       </div>
     </form>
 
     <!-- 路线预览 -->
-    <div v-show="activeTab === 'submit'" class="theme-card rounded-2xl p-5 mb-5 w-full box-border">
+    <div class="theme-card rounded-2xl p-5 mb-5 w-full box-border">
       <div class="flex justify-between items-center border-b border-dashed theme-card-divider pb-2">
         <div class="text-sm font-semibold theme-text-secondary">路线预览</div>
-        <button
-          type="button"
-          class="p-1 rounded-md theme-card-soft theme-text-secondary text-sm"
-          @click="openMapDrawer"
-          title="绘制路线"
-        >
-          <i class="ri-map-line"></i>
-          自定义
-        </button>
       </div>
       <MapPreview
         v-if="mapRenderUnlocked"
@@ -228,19 +167,14 @@
         class="pt-2 w-full transition-all duration-300"
       />
     </div>
-
-    <ConfirmDialog ref="confirmDialogRef" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, inject, defineAsyncComponent, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, watch, inject, defineAsyncComponent } from 'vue';
 import { submitRun as submitRunApi, useRouteGenerator } from '@/composables/useRun';
 import { useDataStore } from '@/composables/useDataStore';
 import { useThemeStore } from '@/composables/useTheme';
-import { waitForAutorunPingReady } from '@/sdk/autorun';
-import { deleteCustomMap, getCustomMapData, renameCustomMap } from '@/utils/map';
 import {
   calculatePaceMinutesPerKm,
   computeDurationFromDistance,
@@ -251,33 +185,12 @@ import {
 } from '@/utils/run';
 
 const MapPreview = defineAsyncComponent(() => import('./MapPreview.vue'));
-const AutoConfig = defineAsyncComponent(() => import('./AutoConfig.vue'));
-const ConfirmDialog = defineAsyncComponent(() => import('./ui/ConfirmDialog.vue'));
 
-const router = useRouter();
 const showMessage = inject('showMessage');
 
 const { userInfo, runStandard, runInfo, submitRunDistance, submitRunRoute } = useDataStore();
 
 const emit = defineEmits(['submitted']);
-
-const tabs = [
-  { key: 'submit', label: '手动提交', icon: 'ri-add-line' },
-  { key: 'schedule', label: '自动提交', icon: 'ri-calendar-schedule-line' },
-];
-
-const activeTab = ref('submit');
-const schedulePanelMounted = ref(false);
-
-watch(
-  activeTab,
-  (tab) => {
-    if (tab === 'schedule') {
-      schedulePanelMounted.value = true;
-    }
-  },
-  { immediate: true },
-);
 
 // 提交记录相关
 const form = ref({
@@ -285,10 +198,7 @@ const form = ref({
   route: submitRunRoute.value,
   duration: 0,
 });
-const mapRenderUnlocked = ref(false);
-const manualTrack = ref(null);
-const confirmDialogRef = ref(null);
-const pendingDrawerRoute = ref('');
+const mapRenderUnlocked = ref(true);
 const submitting = ref(false);
 const randomizing = ref(false);
 const awaitingSubmitConfirm = ref(false);
@@ -297,10 +207,7 @@ const showRouteOptions = ref(false);
 const themeStore = useThemeStore();
 const isDark = computed(() => themeStore.isDark);
 
-const displayTrack = computed(() => {
-  if (manualTrack.value) return manualTrack.value;
-  return generatedTrack.value;
-});
+const displayTrack = computed(() => generatedTrack.value);
 
 const distanceBounds = computed(() =>
   resolveRunBoundsFromStandard(userInfo.value || {}, runStandard.value || {}),
@@ -545,15 +452,6 @@ const stats = computed(() => {
 
 const summaryCards = computed(() => stats.value.summaryCards);
 
-function isCustomRoute(route) {
-  return String(route || '').startsWith('custom_');
-}
-
-function getCustomStorageId(route) {
-  if (!isCustomRoute(route)) return '';
-  return String(route).replace(/^custom_/, '');
-}
-
 async function refreshRoutes(preferredRoute = '') {
   await loadMaps();
 
@@ -573,112 +471,14 @@ async function refreshRoutes(preferredRoute = '') {
   }
 }
 
-async function renameRoute(route) {
-  const storageId = getCustomStorageId(route);
-  if (!storageId) return;
-
-  const currentName = String(routeOptions.value[route] || '').trim();
-  const nextName = window.prompt('请输入新的路线名称', currentName)?.trim();
-  if (!nextName || nextName === currentName) return;
-
-  const success = renameCustomMap(storageId, nextName);
-  if (!success) {
-    showMessage('重命名失败，请重试', 'error');
-    return;
-  }
-
-  await refreshRoutes(route);
-  showMessage('路线已重命名', 'success');
-}
-
-function editRoute(route) {
-  const storageId = getCustomStorageId(route);
-  if (!storageId) return;
-
-  const customData = getCustomMapData(storageId);
-  if (!Array.isArray(customData) || customData.length < 2) {
-    showMessage('路线数据无效，无法编辑', 'error');
-    return;
-  }
-
-  router.push({
-    name: 'map-drawer',
-    query: {
-      track: JSON.stringify(customData),
-      editCustomMapId: storageId,
-      editCustomMapName: routeOptions.value[route] || '',
-    },
-  });
-}
-
-async function deleteRoute(route) {
-  const storageId = getCustomStorageId(route);
-  if (!storageId) return;
-
-  const confirmed = await confirmDialogRef.value?.show({
-    title: '删除自定义路线',
-    message: `确定删除「${routeOptions.value[route] || '该路线'}」吗？此操作不可恢复。`,
-  });
-  if (!confirmed) return;
-
-  const success = deleteCustomMap(storageId);
-  if (!success) {
-    showMessage('删除失败，请重试', 'error');
-    return;
-  }
-
-  if (form.value.route === route) {
-    manualTrack.value = null;
-  }
-
-  await refreshRoutes();
-  showMessage('路线已删除', 'success');
-}
-
 function selectRoute(route) {
   if (!Object.prototype.hasOwnProperty.call(routeOptions.value, route)) {
     return;
   }
-  manualTrack.value = null;
   selectMapRoute(route);
   form.value.route = route;
   submitRunRoute.value = route;
   showRouteOptions.value = false;
-}
-
-function openMapDrawer() {
-  // 导航到全屏地图绘制页面
-  router.push({
-    name: 'map-drawer',
-    query: {
-      track: manualTrack.value ? JSON.stringify(manualTrack.value) : undefined,
-    },
-  });
-}
-
-// 检查从地图绘制页面返回时的轨迹数据
-function checkMapDrawerResult() {
-  const result = sessionStorage.getItem('_map_drawer_result');
-  if (result) {
-    try {
-      const parsed = JSON.parse(result);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        manualTrack.value = parsed;
-      } else if (parsed && typeof parsed === 'object') {
-        const track = Array.isArray(parsed.track) ? parsed.track : [];
-        if (track.length > 0) {
-          manualTrack.value = track;
-        }
-        if (parsed.customRoute) {
-          pendingDrawerRoute.value = String(parsed.customRoute);
-        }
-      }
-    } catch (e) {
-      console.error('Failed to parse map drawer result:', e);
-    } finally {
-      sessionStorage.removeItem('_map_drawer_result');
-    }
-  }
 }
 
 const handleSubmit = async () => {
@@ -691,10 +491,6 @@ const handleSubmit = async () => {
       route: form.value.route || 'manual',
       runTime,
     };
-
-    if (manualTrack.value) {
-      apiPayload.track = manualTrack.value;
-    }
 
     const res = await submitRunApi(apiPayload);
     if (!res.ok) {
@@ -738,37 +534,15 @@ const confirmSubmit = () => {
 };
 
 const onFormSubmit = () => {
-  if (activeTab.value !== 'submit' || submitting.value) return;
+  if (submitting.value) return;
   requestSubmitConfirm();
 };
-
-const onAutoConfigSaved = () => {
-  showMessage('保存成功', 'success');
-};
-
-const unlockMapRender = async () => {
-  await waitForAutorunPingReady();
-  mapRenderUnlocked.value = true;
-};
-
-onMounted(() => {
-  checkMapDrawerResult();
-  unlockMapRender();
-});
 
 loadMaps().then(async () => {
   if (submitRunRoute.value) {
     form.value.route = submitRunRoute.value;
   } else if (selectedRoute.value) {
     form.value.route = selectedRoute.value;
-  }
-
-  if (
-    pendingDrawerRoute.value &&
-    Object.prototype.hasOwnProperty.call(routeOptions.value, pendingDrawerRoute.value)
-  ) {
-    selectRoute(pendingDrawerRoute.value);
-    pendingDrawerRoute.value = '';
   }
 
   const cachedDistance = Number(submitRunDistance.value);
@@ -859,51 +633,6 @@ loadMaps().then(async () => {
   white-space: nowrap;
 }
 
-.route-option-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  opacity: 0.8;
-}
-
-.route-action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-}
-
-.route-action-btn:hover {
-  background: var(--action-hover-bg);
-  color: var(--text-primary);
-}
-
-.route-action-btn.danger:hover {
-  color: #dc2626;
-}
-
-.route-custom-tag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-right: 6px;
-  padding: 1px 6px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-  color: #075985;
-  background: #bae6fd;
-}
-
 .route-option.selected,
 .route-option:hover {
   background: var(--action-hover-bg);
@@ -931,15 +660,6 @@ loadMaps().then(async () => {
 .confirm-actions-leave-to {
   opacity: 0;
   transform: translateY(4px) scale(0.985);
-}
-
-.submit-tab-inactive {
-  color: var(--text-secondary);
-}
-
-.submit-tab-inactive:hover {
-  color: var(--text-primary);
-  background-color: var(--action-hover-bg);
 }
 
 .submit-confirm-cancel {

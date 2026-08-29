@@ -232,8 +232,7 @@ export function useRouteGenerator(distanceRef, routeRef) {
   async function load() {
     try {
       await loadMapFiles();
-      loadCustomMaps(true);
-      const allMapIds = getAllMapIds();
+      const allMapIds = getAllMapIds().filter((id) => !isCustomMap(id));
       mapDisplayNames.value = getMapNames();
 
       const options = {};
@@ -251,7 +250,7 @@ export function useRouteGenerator(distanceRef, routeRef) {
       mapsLoaded.value = true;
     } catch (error) {
       console.error('加载地图失败:', error);
-      routeOptions.value = { cdutcm_wj: '成都中医药大学（温江校区）' };
+      routeOptions.value = { sptc: '四川邮电职业技术学院' };
       mapsLoaded.value = true;
     }
   }
