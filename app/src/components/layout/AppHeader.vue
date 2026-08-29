@@ -44,12 +44,11 @@
             <slot name="content">
               <template v-if="props.iconsOnly">
                 <div class="flex items-center justify-between w-full h-full px-3 pointer-events-auto">
-                  <div class="h-5 w-5 flex items-center justify-center opacity-80">
+                  <div class="h-5 w-5 flex items-center justify-center">
                     <img
                       src="/logo.png"
                       alt="App Logo"
                       class="max-h-full max-w-full object-contain"
-                      :class="isDark ? 'header-logo-mono-dark' : 'header-logo-mono-light'"
                     />
                   </div>
                   <div class="flex items-center gap-3">
@@ -348,14 +347,6 @@ defineExpose({
 .header-action-btn:hover {
   color: var(--text-primary);
   background-color: var(--action-hover-bg);
-}
-
-.header-logo-mono-light {
-  filter: grayscale(1) brightness(0);
-}
-
-.header-logo-mono-dark {
-  filter: grayscale(1) brightness(0) invert(1);
 }
 
 .app-header--transparent {

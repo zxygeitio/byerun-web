@@ -34,41 +34,12 @@
           <!-- 提交记录表单 -->
           <div>
             <div class="form-group mb-4">
-              <label class="block text-sm theme-text-secondary mb-2 font-medium">选择地图</label>
-              <div
-                class="route-dropdown theme-card-soft rounded-md p-2 cursor-pointer relative w-full box-border"
-                @click="mapsLoaded && !submitting ? (showRouteOptions = !showRouteOptions) : null"
-              >
-                <div
-                  class="selected-route flex items-center justify-between text-sm theme-text-secondary"
-                  :class="{ disabled: !mapsLoaded || submitting }"
-                >
-                  <span v-if="!mapsLoaded">加载地图中...</span>
-                  <span v-else>{{ getRouteName(form.route) }}</span>
-                  <div
-                    class="dropdown-arrow"
-                    :class="{ active: showRouteOptions && mapsLoaded }"
-                    v-if="mapsLoaded"
-                  ></div>
-                </div>
-                <div v-if="showRouteOptions && mapsLoaded" class="route-options theme-card-strong">
-                  <div
-                    v-for="(name, value) in routeOptions"
-                    :key="value"
-                    class="route-option text-sm theme-text-secondary cursor-pointer"
-                    :class="{ selected: form.route === value }"
-                    @click.stop="selectRoute(value)"
-                  >
-                    <div class="route-option-main">
-                      <div class="route-option-name">
-                        <span>{{ name }}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div v-if="Object.keys(routeOptions).length === 0" class="route-option disabled">
-                    无可用地图
-                  </div>
-                </div>
+              <label class="block text-sm theme-text-secondary mb-2 font-medium">跑步地点</label>
+              <div class="route-fixed theme-card-soft p-2 w-full box-border flex items-center gap-2">
+                <i class="ri-map-2-add-line theme-input-icon text-base shrink-0"></i>
+                <span class="text-sm theme-text-secondary truncate">{{
+                  getRouteName(form.route)
+                }}</span>
               </div>
             </div>
 
@@ -202,7 +173,6 @@ const mapRenderUnlocked = ref(true);
 const submitting = ref(false);
 const randomizing = ref(false);
 const awaitingSubmitConfirm = ref(false);
-const showRouteOptions = ref(false);
 
 const themeStore = useThemeStore();
 const isDark = computed(() => themeStore.isDark);
@@ -478,7 +448,6 @@ function selectRoute(route) {
   selectMapRoute(route);
   form.value.route = route;
   submitRunRoute.value = route;
-  showRouteOptions.value = false;
 }
 
 const handleSubmit = async () => {
@@ -560,83 +529,6 @@ loadMaps().then(async () => {
 .form-card-container {
   position: relative;
   z-index: 10;
-}
-
-.route-dropdown {
-  position: relative;
-  user-select: none;
-  box-sizing: border-box;
-  overflow: visible;
-  z-index: 100;
-}
-
-.dropdown-arrow {
-  width: 0;
-  height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 6px solid var(--text-tertiary);
-  margin-left: 8px;
-  transition: transform 0.2s;
-}
-
-.dropdown-arrow.active {
-  transform: rotate(180deg);
-}
-
-.route-options {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 110%;
-  border-radius: 8px;
-  z-index: 10000;
-  padding: 4px 0;
-  max-height: 300px;
-  overflow-y: auto;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-  pointer-events: auto;
-}
-
-/* 确保表单卡片容器允许下拉菜单溢出 */
-:deep(.form-card-container) {
-  overflow: visible;
-}
-
-.route-option {
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.route-option-main {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.route-option-name {
-  display: inline-flex;
-  align-items: center;
-  flex: 1;
-  gap: 6px;
-  min-width: 0;
-  white-space: nowrap;
-}
-
-.route-option-name span:last-child {
-  min-width: 0;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.route-option.selected,
-.route-option:hover {
-  background: var(--action-hover-bg);
-  color: var(--text-primary);
 }
 
 .loader {
