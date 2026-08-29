@@ -17,8 +17,10 @@ Goodbye Unirun - 校园跑助手🏃‍♂️
 <i>一键完成记录 / 云端定时任务</i>
 </p>
 
+## 界面预览
+
 <p align="center">
-<i>精简版：仅保留四川邮电职业技术学院的跑步功能，已移除俱乐部签到、校友圈、消息、跑步记录等模块。</i>
+  <img width="800" src="./docs/preview-home.png" alt="Byerun 界面预览">
 </p>
 
 ## 支持的地图
