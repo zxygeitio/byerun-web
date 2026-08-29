@@ -248,12 +248,6 @@ export class AppApiClient {
     });
   }
 
-  getJoinNum(schoolId, studentId) {
-    return this.http.get('/clubactivity/getJoinNum', {
-      params: { schoolId, studentId },
-    });
-  }
-
   getRunStandard(schoolId) {
     return this.http.get('/unirun/query/runStandard', {
       params: { schoolId },
@@ -263,93 +257,6 @@ export class AppApiClient {
   getRunInfo(userId, yearSemester) {
     return this.http.get('/unirun/query/runInfo', {
       params: { userId, yearSemester },
-    });
-  }
-
-  queryClubInfo({ queryTime, schoolId, studentId, pageNo = 1, pageSize = 15 } = {}) {
-    return this.http.get('/clubactivity/queryActivityList', {
-      params: {
-        pageNo,
-        pageSize,
-        queryTime,
-        schoolId,
-        studentId,
-      },
-    });
-  }
-
-  queryMyPendingClub(studentId, pageNo = 1, pageSize = 15) {
-    return this.http.get('/clubactivity/queryMyActivityList', {
-      params: {
-        pageNo,
-        pageSize,
-        studentId,
-      },
-    });
-  }
-
-  queryMyClubTask() {
-    return this.http.get('/clubactivity/queryMySemesterClubActivity');
-  }
-
-  queryMyClubRecord(studentId, pageNo = 1, pageSize = 15) {
-    return this.http.get('/clubactivity/getStudentClubRecord', {
-      params: {
-        pageNo,
-        pageSize,
-        studentId,
-      },
-    });
-  }
-
-  joinClub(activityId, studentId) {
-    return this.http.get('/clubactivity/joinClubActivity', {
-      params: {
-        activityId,
-        studentId,
-      },
-    });
-  }
-
-  cancelClub(activityId, studentId) {
-    return this.http.get('/clubactivity/cancelActivity', {
-      params: {
-        activityId,
-        studentId,
-      },
-    });
-  }
-
-  countValidSignUp(studentId) {
-    return this.http.get('/clubactivity/countValidSignUp', {
-      params: { studentId },
-    });
-  }
-
-  queryMyClubItemList({ schoolId, studentId, type } = {}) {
-    const params = { schoolId, studentId };
-    if (type !== undefined && type !== null && `${type}`.trim() !== '') {
-      params.type = type;
-    }
-
-    return this.http.get('/clubactivity/getMyClubItemList', {
-      params,
-    });
-  }
-
-  queryClubSignStatus(studentId) {
-    return this.http.get('/clubactivity/getSignInTf', {
-      params: { studentId },
-    });
-  }
-
-  signInOrSignBack({ activityId, latitude, longitude, signType, studentId }) {
-    return this.http.post('/clubactivity/signInOrSignBack', {
-      activityId: Number(activityId),
-      latitude: String(latitude),
-      longitude: String(longitude),
-      signType: String(signType),
-      studentId: Number(studentId),
     });
   }
 }

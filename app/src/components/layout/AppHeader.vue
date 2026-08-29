@@ -53,17 +53,6 @@
                     />
                   </div>
                   <div class="flex items-center gap-3">
-                    <a
-                      v-if="props.showGithub"
-                      :href="githubUrl"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="inline-flex items-center justify-center h-6 w-6 transition-colors rounded-md header-action-btn"
-                      aria-label="GitHub"
-                      title="GitHub"
-                    >
-                      <i class="ri-github-line text-[19px]"></i>
-                    </a>
                   <button
                     type="button"
                     class="inline-flex items-center justify-center h-6 w-6 transition-colors rounded-md header-action-btn"
@@ -106,17 +95,6 @@
                 </div>
 
                 <div class="flex items-center ml-auto mr-3 shrink-0 gap-3 pointer-events-auto">
-                  <a
-                    v-if="props.showGithub"
-                    :href="githubUrl"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center justify-center h-6 w-6 transition-colors rounded-md header-action-btn"
-                    aria-label="GitHub"
-                    title="GitHub"
-                  >
-                    <i class="ri-github-line text-[19px]"></i>
-                  </a>
                   <button
                     type="button"
                     class="inline-flex items-center justify-center h-6 w-6 transition-colors rounded-md header-action-btn"
@@ -125,6 +103,15 @@
                   >
                     <i v-if="isDark" class="ri-sun-fill text-[17px]"></i>
                     <i v-else class="ri-moon-clear-fill text-[17px]"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="inline-flex items-center justify-center h-6 w-6 transition-colors rounded-md header-action-btn"
+                    title="退出登录"
+                    aria-label="退出登录"
+                    @click="handleLogout"
+                  >
+                    <i class="ri-logout-box-r-line text-[17px]"></i>
                   </button>
                 </div>
               </template>
@@ -143,16 +130,11 @@
 <script setup>
 import { ref, computed, getCurrentInstance, watch, onUnmounted } from 'vue';
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue';
-import { urls } from '@/sdk/app';
 import { useDataStore } from '@/composables/useDataStore';
-import { useChatStore } from '@/composables/useChatStore';
 import { useThemeStore } from '@/composables/useTheme';
-
-const githubUrl = urls.github || 'https://github.com/yanyaoli/byerun-web';
 
 const props = defineProps({
   scrolled: { type: Boolean, default: false },
-  showGithub: { type: Boolean, default: true },
   notifyOnly: { type: Boolean, default: false },
   transparent: { type: Boolean, default: false },
   iconsOnly: { type: Boolean, default: false },
@@ -165,7 +147,6 @@ const confirmDialogRef = ref(null);
 const themeStore = useThemeStore();
 const isDark = computed(() => themeStore.isDark);
 const { userInfo, clearAllData } = useDataStore();
-const { clearChatData } = useChatStore();
 const welcomePhase = ref('logo');
 const hasPlayedWelcome = ref(false);
 const timers = [];
@@ -259,7 +240,6 @@ const handleLogout = async () => {
     } else {
       try {
         clearAllData();
-        clearChatData();
       } catch (e) {}
       window.location.reload();
     }

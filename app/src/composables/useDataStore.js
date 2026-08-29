@@ -11,7 +11,6 @@ const useAppStateStore = defineStore(
     const userInfo = ref(null);
     const runInfo = ref(null);
     const runStandard = ref(null);
-    const activityInfo = ref(null);
     const loading = ref(false);
 
     const submitRunDistance = ref(null);
@@ -50,12 +49,9 @@ const useAppStateStore = defineStore(
         if (userRes.data.code === 10000) {
           userInfo.value = userRes.data.response;
 
-          const { schoolId: sId, userId: uId, studentId: stId } = userInfo.value;
+          const { schoolId: sId, userId: uId } = userInfo.value;
 
-          const [standardRes, activityRes] = await Promise.all([
-            api.getRunStandard(sId).catch(() => null),
-            api.getJoinNum(sId, stId).catch(() => null),
-          ]);
+          const standardRes = await api.getRunStandard(sId).catch(() => null);
 
           let runInfoRes = null;
 
@@ -72,9 +68,6 @@ const useAppStateStore = defineStore(
             runInfo.value = runInfoRes.data.response;
           }
 
-          if (activityRes?.data?.code === 10000) {
-            activityInfo.value = activityRes.data.response;
-          }
           return { ok: true, reason: 'ok', message: '' };
         }
         return {
@@ -104,7 +97,6 @@ const useAppStateStore = defineStore(
       userInfo.value = null;
       runInfo.value = null;
       runStandard.value = null;
-      activityInfo.value = null;
     };
 
     watch(
@@ -119,7 +111,6 @@ const useAppStateStore = defineStore(
       userInfo,
       runInfo,
       runStandard,
-      activityInfo,
       loading,
       submitRunDistance,
       submitRunRoute,
@@ -142,7 +133,6 @@ const useAppStateStore = defineStore(
         'userInfo',
         'runInfo',
         'runStandard',
-        'activityInfo',
         'submitRunDistance',
         'submitRunRoute',
         'activeTab',

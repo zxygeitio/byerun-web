@@ -257,8 +257,7 @@ const ConfirmDialog = defineAsyncComponent(() => import('./ui/ConfirmDialog.vue'
 const router = useRouter();
 const showMessage = inject('showMessage');
 
-const { userInfo, runStandard, runInfo, activityInfo, submitRunDistance, submitRunRoute } =
-  useDataStore();
+const { userInfo, runStandard, runInfo, submitRunDistance, submitRunRoute } = useDataStore();
 
 const emit = defineEmits(['submitted']);
 
@@ -480,17 +479,9 @@ const {
 
 // 统计数据
 const stats = computed(() => {
-  const activity = activityInfo.value || {};
   const run = runInfo.value || {};
   const standard = runStandard.value || {};
   const user = userInfo.value || {};
-
-  const completedActivities = Number(activity.joinNum || 0);
-  const totalActivities = Number(activity.totalNum || 0);
-  const clubCompletionRate =
-    totalActivities > 0 ? (completedActivities / totalActivities) * 100 : 0;
-  const clubCompletionRateText =
-    totalActivities === 0 ? '0%' : `${Math.round(clubCompletionRate)}%`;
 
   // Read semester targets by gender.
   const totalRequiredRuns =
@@ -534,13 +525,7 @@ const stats = computed(() => {
     semesterEndDateText,
     summaryCards: [
       {
-        label: '俱乐部活动',
-        value: clubCompletionRateText,
-        detail: `${completedActivities}/${totalActivities}`,
-        icon: 'ri-basketball-fill',
-        valueClass: 'summary-value-club',
-      },
-      {
+
         label: '跑步次数',
         value: `${runCompletionRate}%`,
         detail: `${completedRuns}/${totalRequiredRuns}`,

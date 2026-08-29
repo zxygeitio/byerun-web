@@ -1,5 +1,4 @@
 const APP_STATE_STORAGE_KEY = 'unirun.app_state';
-const CHAT_STATE_STORAGE_KEY = 'unirun.chat_state';
 const RUNTIME_TOKEN_KEY = '__unirun_runtime_token__';
 
 export const setRuntimeToken = (token) => {
@@ -42,10 +41,6 @@ export const clearAuthSessionStorage = () => {
       userInfo: null,
       runInfo: null,
       runStandard: null,
-      activityInfo: null,
-      chatUser: null,
-      chatUserId: null,
     }),
   );
-  window.localStorage.removeItem(CHAT_STATE_STORAGE_KEY);
 };
