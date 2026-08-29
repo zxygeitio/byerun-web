@@ -1,5 +1,5 @@
 <template>
-  <div :class="['app relative overflow-hidden', isDark ? 'bg-[#050505]' : 'bg-[#f5f5f7]']">
+  <div class="app relative overflow-hidden bg-[var(--bg-primary)]">
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
       <template v-if="isDark">
         <div

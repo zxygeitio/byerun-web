@@ -1,142 +1,206 @@
 @import 'tailwindcss';
 @source "./**/*.{vue,js,ts,jsx,tsx}";
 
+/* ────────────────────────────────────────────────
+   Byerun · 像素卡通多巴胺主题 (Pixel Cartoon Dopamine)
+   只改皮肤不动内核：所有 theme-* 类名与 CSS 变量名保持兼容
+   ──────────────────────────────────────────────── */
+
+@font-face {
+  font-family: 'Fusion Pixel SC';
+  src: url('./assets/fonts/fusion-pixel-sc.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --theme-transition-duration: 280ms;
-  --theme-transition-fast: 180ms;
-  --theme-transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
-  --bg-primary: #f5f5f7;
+  /* 动画节奏（组件 scoped 样式有引用，保留变量名） */
+  --theme-transition-duration: 160ms;
+  --theme-transition-fast: 120ms;
+  --theme-transition-easing: steps(4, end);
+
+  /* 多巴胺糖果色板 */
+  --candy-pink: #ff5d8f;
+  --candy-pink-soft: #ff8fb3;
+  --candy-yellow: #ffd93d;
+  --candy-blue: #4d96ff;
+  --candy-green: #6bcb77;
+  --candy-purple: #9b5de5;
+  --candy-orange: #ff9f45;
+  --candy-mint: #4ecdc4;
+
+  /* 像素描边与硬阴影 */
+  --pixel-ink: #241640;
+  --pixel-border-w: 3px;
+  --pixel-shadow: 5px 5px 0 var(--pixel-ink);
+  --pixel-shadow-sm: 3px 3px 0 var(--pixel-ink);
+  --pixel-shadow-color: var(--pixel-ink);
+
+  /* 基础色 */
+  --bg-primary: #fff7e8;
   --bg-secondary: #ffffff;
-  --text-primary: #1d1d1f;
-  --text-secondary: #6e6e73;
-  --text-tertiary: #b9b9b9;
+  --text-primary: #2a1e42;
+  --text-secondary: #6e6390;
+  --text-tertiary: #a89fc4;
   --text-contrast: #ffffff;
-  --link-color: var(--text-secondary);
-  --link-hover-color: var(--text-primary);
+  --link-color: var(--candy-blue);
+  --link-hover-color: var(--candy-pink);
+  --grid-line: rgba(36, 22, 64, 0.06);
+
+  /* 输入框 */
+  --input-bg: #ffffff;
   --input-text-color: var(--text-primary);
-  --input-placeholder-color: #9ca3af;
-  --input-border-color: rgba(17, 24, 39, 0.32);
-  --input-focus-border-color: rgba(17, 24, 39, 0.55);
-  --button-primary-bg: var(--text-primary);
-  --button-primary-text: var(--bg-primary);
-  --action-hover-bg: rgba(15, 23, 42, 0.08);
-  --card-bg: rgba(255, 255, 255, 0.86);
-  --card-bg-strong: rgba(255, 255, 255, 0.95);
-  --card-soft-bg: rgba(15, 23, 42, 0.04);
-  --card-border: rgba(15, 23, 42, 0.08);
-  --card-divider: rgba(15, 23, 42, 0.12);
-  --border-color: rgba(0, 0, 0, 0.08);
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(0, 0, 0, 0.08);
-  --accent-color: #0891b2;
-  --accent-bg: rgba(8, 145, 178, 0.15);
-  --accent-border: rgba(8, 145, 178, 0.5);
-  --success-color: #059669;
-  --success-bg: rgba(5, 150, 105, 0.15);
-  --success-border: rgba(5, 150, 105, 0.4);
-  --warning-color: #d97706;
-  --warning-bg: rgba(217, 119, 6, 0.15);
-  --warning-border: rgba(217, 119, 6, 0.4);
-  --danger-color: #e11d48;
-  --danger-bg: rgba(225, 29, 72, 0.15);
-  --danger-border: rgba(225, 29, 72, 0.4);
-  --chat-bubble-peer-bg: rgba(255, 255, 255, 0.9);
-  --chat-bubble-peer-border: rgba(15, 23, 42, 0.12);
-  --chat-bubble-peer-text: #0f172a;
-  --chat-bubble-me-bg: rgba(6, 128, 36, 0.9);
-  --chat-bubble-me-border: rgba(14, 116, 144, 0.28);
-  --chat-bubble-me-text: #f3f3f3;
-  --chat-reply-quote-bg: rgba(148, 163, 184, 0.18);
-  --chat-reply-quote-border: rgba(100, 116, 139, 0.45);
-  --chat-reply-quote-me-bg: rgba(7, 122, 36, 0.9);
-  --chat-reply-quote-me-border: rgba(14, 116, 144, 0.28);
-  --chat-reply-quote-me-text: #f3f3f3;
-  --chat-preview-bubble-bg: rgba(226, 232, 240, 0.82);
-  --chat-preview-bubble-border: rgba(100, 116, 139, 0.45);
-  /* BottomTabBar */
-  --tab-action-bg: rgba(15, 23, 42, 0.1);
-  --tab-action-border: rgba(100, 116, 139, 0.45);
-  /* Liquid glass (header/tabbar) */
-  --liquid-shell-bg: rgba(255, 255, 255, 0.42);
-  --liquid-shell-border: rgba(255, 255, 255, 0.64);
-  --liquid-shell-inner-stroke: rgba(255, 255, 255, 0.82);
-  --liquid-shell-highlight: rgba(255, 255, 255, 0.72);
-  --liquid-shell-shadow: rgba(15, 23, 42, 0.16);
-  --liquid-shell-specular: rgba(255, 255, 255, 0.9);
-  --liquid-chat-input-bg: rgba(255, 255, 255, 0.34);
-  --liquid-chat-input-border: rgba(255, 255, 255, 0.58);
-  --liquid-chat-input-highlight: rgba(255, 255, 255, 0.75);
-  --liquid-chat-input-focus-bg: rgba(255, 255, 255, 0.44);
-  --liquid-chat-input-focus-border: rgba(255, 255, 255, 0.72);
+  --input-placeholder-color: #b3aacc;
+  --input-border-color: var(--pixel-ink);
+  --input-focus-border-color: var(--candy-pink);
+
+  /* 主按钮：糖果粉 */
+  --button-primary-bg: var(--candy-pink);
+  --button-primary-text: #ffffff;
+
+  --action-hover-bg: rgba(36, 22, 64, 0.08);
+
+  /* 卡片：实底 + 粗描边 + 硬阴影（由 theme-card 类落地） */
+  --card-bg: #ffffff;
+  --card-bg-strong: #ffffff;
+  --card-soft-bg: #fff0f5;
+  --card-border: var(--pixel-ink);
+  --card-divider: rgba(36, 22, 64, 0.16);
+  --border-color: rgba(36, 22, 64, 0.2);
+
+  --glass-bg: #ffffff;
+  --glass-border: var(--pixel-ink);
+
+  --accent-color: var(--candy-pink);
+  --accent-bg: rgba(255, 93, 143, 0.16);
+  --accent-border: var(--candy-pink);
+
+  --success-color: #1faf5e;
+  --success-bg: rgba(107, 203, 119, 0.2);
+  --success-border: #2fbf71;
+  --warning-color: #e8890c;
+  --warning-bg: rgba(255, 159, 69, 0.2);
+  --warning-border: #ff9f45;
+  --danger-color: #e63757;
+  --danger-bg: rgba(255, 77, 109, 0.16);
+  --danger-border: #ff4d6d;
+
+  /* 聊天气泡（模块已移除，仅保持变量兼容） */
+  --chat-bubble-peer-bg: #ffffff;
+  --chat-bubble-peer-border: var(--pixel-ink);
+  --chat-bubble-peer-text: var(--text-primary);
+  --chat-bubble-me-bg: var(--candy-pink);
+  --chat-bubble-me-border: var(--pixel-ink);
+  --chat-bubble-me-text: #ffffff;
+  --chat-reply-quote-bg: #fff0f5;
+  --chat-reply-quote-border: var(--candy-pink);
+  --chat-reply-quote-me-bg: rgba(255, 93, 143, 0.35);
+  --chat-reply-quote-me-border: var(--pixel-ink);
+  --chat-reply-quote-me-text: #ffffff;
+  --chat-preview-bubble-bg: #fff0f5;
+  --chat-preview-bubble-border: var(--pixel-ink);
+
+  /* BottomTabBar（已移除，保持变量兼容） */
+  --tab-action-bg: rgba(36, 22, 64, 0.1);
+  --tab-action-border: var(--pixel-ink);
+
+  /* liquid-glass 系列变量保留，值改为实底像素风 */
+  --liquid-shell-bg: var(--bg-secondary);
+  --liquid-shell-border: var(--pixel-ink);
+  --liquid-shell-inner-stroke: transparent;
+  --liquid-shell-highlight: transparent;
+  --liquid-shell-shadow: var(--pixel-ink);
+  --liquid-shell-specular: transparent;
+  --liquid-chat-input-bg: #ffffff;
+  --liquid-chat-input-border: var(--pixel-ink);
+  --liquid-chat-input-highlight: transparent;
+  --liquid-chat-input-focus-bg: #ffffff;
+  --liquid-chat-input-focus-border: var(--candy-pink);
 }
 
 .dark {
-  --bg-primary: #050505;
-  --bg-secondary: #1c1c1e;
-  --text-primary: #f5f5f7;
-  --text-secondary: #d1d5db;
-  --text-tertiary: #9ca3af;
-  --text-contrast: #050505;
-  --link-color: #a1a1aa;
-  --link-hover-color: var(--text-primary);
-  --input-text-color: #e5e7eb;
-  --input-placeholder-color: #6b7280;
-  --input-border-color: rgba(229, 231, 235, 0.35);
-  --input-focus-border-color: rgba(229, 231, 235, 0.65);
-  --button-primary-bg: var(--text-primary);
-  --button-primary-text: var(--bg-primary);
+  --pixel-ink: #05030d;
+  --pixel-shadow: 5px 5px 0 rgba(0, 0, 0, 0.65);
+  --pixel-shadow-sm: 3px 3px 0 rgba(0, 0, 0, 0.65);
+  --pixel-shadow-color: rgba(0, 0, 0, 0.65);
+
+  --bg-primary: #171029;
+  --bg-secondary: #251b41;
+  --text-primary: #f4eeff;
+  --text-secondary: #c9bee8;
+  --text-tertiary: #8e82b8;
+  --text-contrast: #171029;
+  --link-color: #6eb6ff;
+  --link-hover-color: #ff7bac;
+  --grid-line: rgba(255, 255, 255, 0.045);
+
+  --input-bg: #1d1533;
+  --input-text-color: var(--text-primary);
+  --input-placeholder-color: #6f639c;
+  --input-border-color: #05030d;
+  --input-focus-border-color: #ff7bac;
+
+  --button-primary-bg: #ff5d8f;
+  --button-primary-text: #ffffff;
+
   --action-hover-bg: rgba(255, 255, 255, 0.12);
-  --card-bg: rgba(18, 18, 18, 0.9);
-  --card-bg-strong: rgba(28, 28, 30, 0.95);
-  --card-soft-bg: rgba(255, 255, 255, 0.08);
-  --card-border: rgba(255, 255, 255, 0.1);
+
+  --card-bg: #2a1f4a;
+  --card-bg-strong: #332557;
+  --card-soft-bg: rgba(255, 255, 255, 0.07);
+  --card-border: #05030d;
   --card-divider: rgba(255, 255, 255, 0.14);
-  --border-color: rgba(255, 255, 255, 0.08);
-  --glass-bg: rgba(28, 28, 30, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --accent-color: #22d3ee;
-  --accent-bg: rgba(34, 211, 238, 0.15);
-  --accent-border: rgba(125, 211, 252, 0.5);
-  --success-color: #34d399;
-  --success-bg: rgba(52, 211, 153, 0.15);
-  --success-border: rgba(52, 211, 153, 0.4);
-  --warning-color: #fbbf24;
-  --warning-bg: rgba(251, 191, 36, 0.15);
-  --warning-border: rgba(251, 191, 36, 0.4);
-  --danger-color: #fb7185;
-  --danger-bg: rgba(251, 113, 133, 0.15);
-  --danger-border: rgba(251, 113, 133, 0.4);
-  --chat-bubble-peer-bg: rgba(37, 36, 36, 0.719);
-  --chat-bubble-peer-border: rgba(255, 255, 255, 0.04);
-  --chat-bubble-peer-text: #e2e8f0;
-  --chat-bubble-me-bg: rgba(2, 53, 17, 0.719);
-  --chat-bubble-me-border: rgba(5, 25, 36, 0.4);
-  --chat-bubble-me-text: #dbeafe;
-  --chat-reply-quote-bg: var(--card-soft-bg);
-  --chat-reply-quote-border: var(--card-divider);
-  --chat-reply-quote-me-bg: rgba(2, 53, 17, 0.42);
-  --chat-reply-quote-me-border: rgba(16, 185, 129, 0.45);
-  --chat-reply-quote-me-text: #dbeafe;
-  --chat-preview-bubble-bg: var(--card-soft-bg);
-  --chat-preview-bubble-border: var(--card-divider);
-  --liquid-shell-bg: rgba(28, 28, 30, 0.38);
-  --liquid-shell-border: rgba(22, 21, 21, 0.28);
-  --liquid-shell-inner-stroke: rgba(255, 255, 255, 0.16);
-  --liquid-shell-highlight: rgba(255, 255, 255, 0.22);
-  --liquid-shell-shadow: rgba(0, 0, 0, 0.5);
-  --liquid-shell-specular: rgba(255, 255, 255, 0.38);
-  --liquid-chat-input-bg: rgba(33, 33, 35, 0.42);
-  --liquid-chat-input-border: rgba(255, 255, 255, 0.26);
-  --liquid-chat-input-highlight: rgba(255, 255, 255, 0.2);
-  --liquid-chat-input-focus-bg: rgba(40, 40, 42, 0.52);
-  --liquid-chat-input-focus-border: rgba(255, 255, 255, 0.34);
+  --border-color: rgba(255, 255, 255, 0.16);
+
+  --glass-bg: #251b41;
+  --glass-border: #05030d;
+
+  --accent-color: #ff7bac;
+  --accent-bg: rgba(255, 123, 172, 0.18);
+  --accent-border: #ff7bac;
+
+  --success-color: #7be495;
+  --success-bg: rgba(123, 228, 149, 0.16);
+  --success-border: #7be495;
+  --warning-color: #ffc94d;
+  --warning-bg: rgba(255, 201, 77, 0.16);
+  --warning-border: #ffc94d;
+  --danger-color: #ff7b9c;
+  --danger-bg: rgba(255, 123, 156, 0.16);
+  --danger-border: #ff7b9c;
+
+  --chat-bubble-peer-bg: #2a1f4a;
+  --chat-bubble-peer-border: #05030d;
+  --chat-bubble-peer-text: #f4eeff;
+  --chat-bubble-me-bg: #ff5d8f;
+  --chat-bubble-me-border: #05030d;
+  --chat-bubble-me-text: #ffffff;
+  --chat-reply-quote-bg: rgba(255, 255, 255, 0.07);
+  --chat-reply-quote-border: rgba(255, 255, 255, 0.14);
+  --chat-reply-quote-me-bg: rgba(255, 93, 143, 0.4);
+  --chat-reply-quote-me-border: #05030d;
+  --chat-reply-quote-me-text: #ffffff;
+  --chat-preview-bubble-bg: rgba(255, 255, 255, 0.07);
+  --chat-preview-bubble-border: rgba(255, 255, 255, 0.14);
+
+  --tab-action-bg: rgba(255, 255, 255, 0.1);
+  --tab-action-border: #05030d;
+
+  --liquid-shell-bg: #251b41;
+  --liquid-shell-border: #05030d;
+  --liquid-shell-inner-stroke: transparent;
+  --liquid-shell-highlight: transparent;
+  --liquid-shell-shadow: rgba(0, 0, 0, 0.65);
+  --liquid-shell-specular: transparent;
+  --liquid-chat-input-bg: #1d1533;
+  --liquid-chat-input-border: #05030d;
+  --liquid-chat-input-highlight: transparent;
+  --liquid-chat-input-focus-bg: #1d1533;
+  --liquid-chat-input-focus-border: #ff7bac;
 }
 
 @layer base {
-  * {
-    transform: none;
-  }
-
   button,
   input,
   textarea,
@@ -144,12 +208,20 @@
   a,
   img,
   [role='button'] {
-    transition-property: color, background-color, border-color, box-shadow, opacity, filter;
-    transition-duration: var(--theme-transition-duration);
-    transition-timing-function: var(--theme-transition-easing);
+    transition-property: color, background-color, border-color, box-shadow, opacity, filter,
+      transform;
+    transition-duration: var(--theme-transition-fast);
+    transition-timing-function: steps(3, end);
+  }
+
+  input,
+  textarea,
+  select {
+    font-family: inherit;
   }
 }
 
+/* ── 全局画布：奶油底 + 方格纸 + 糖果泡泡 ── */
 html,
 body {
   width: 100%;
@@ -162,9 +234,26 @@ body {
   scrollbar-gutter: stable;
   background-color: var(--bg-primary);
   color: var(--text-primary);
+  font-family: 'Fusion Pixel SC', ui-monospace, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   transition:
-    background-color var(--theme-transition-duration) var(--theme-transition-easing),
-    color var(--theme-transition-duration) var(--theme-transition-easing);
+    background-color var(--theme-transition-duration) linear,
+    color var(--theme-transition-duration) linear;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 12% 16%, rgba(255, 93, 143, 0.28) 0 22px, transparent 23px),
+    radial-gradient(circle at 88% 10%, rgba(77, 150, 255, 0.24) 0 18px, transparent 19px),
+    radial-gradient(circle at 84% 76%, rgba(255, 217, 61, 0.3) 0 26px, transparent 27px),
+    radial-gradient(circle at 6% 84%, rgba(107, 203, 119, 0.24) 0 20px, transparent 21px),
+    radial-gradient(circle at 50% 50%, rgba(155, 93, 229, 0.1) 0 14px, transparent 15px),
+    repeating-linear-gradient(0deg, transparent 0 15px, var(--grid-line) 15px 16px),
+    repeating-linear-gradient(90deg, transparent 0 15px, var(--grid-line) 15px 16px);
+}
+
+::selection {
+  background: var(--candy-yellow);
+  color: var(--pixel-ink);
 }
 
 #app {
@@ -172,8 +261,8 @@ body {
   height: 100%;
   max-height: 100%;
   overflow: hidden;
-  background-color: var(--bg-primary);
-  transition: background-color var(--theme-transition-duration) var(--theme-transition-easing);
+  background-color: transparent;
+  transition: none;
 }
 
 html::-webkit-scrollbar,
@@ -189,36 +278,81 @@ body::-webkit-scrollbar {
   height: 0;
 }
 
+/* ── 像素风：全面直角（覆盖 Tailwind 圆角工具类） ── */
+.rounded,
+.rounded-md,
+.rounded-lg,
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl,
+.rounded-t-lg,
+.rounded-b-lg,
+.rounded-t-xl,
+.rounded-b-xl,
+.rounded-full {
+  border-radius: 0;
+}
+
+/* 加载圈保留圆形，保证旋转可读 */
+.rounded-full.animate-spin,
+.animate-spin.rounded-full,
+.border-t-white.rounded-full {
+  border-radius: 9999px;
+}
+
+/* ── 文字 ── */
 .theme-text-primary {
   color: var(--text-primary);
-  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
+  transition: color var(--theme-transition-duration) linear;
 }
 
 .theme-text-secondary {
   color: var(--text-secondary);
-  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
+  transition: color var(--theme-transition-duration) linear;
 }
 
 .theme-text-tertiary {
   color: var(--text-tertiary);
-  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
+  transition: color var(--theme-transition-duration) linear;
 }
 
 .theme-link {
   color: var(--link-color);
-  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
+  text-decoration: underline wavy var(--candy-yellow) 1px;
+  text-underline-offset: 3px;
+  transition: color var(--theme-transition-duration) linear;
 }
 
 .theme-link:hover {
   color: var(--link-hover-color);
 }
 
+h1,
+h2,
+h3 {
+  text-shadow:
+    2px 2px 0 rgba(255, 217, 61, 0.55),
+    -1px -1px 0 rgba(255, 93, 143, 0.18);
+}
+
+.dark h1,
+.dark h2,
+.dark h3 {
+  text-shadow:
+    2px 2px 0 rgba(255, 123, 172, 0.35),
+    -1px -1px 0 rgba(110, 182, 255, 0.25);
+}
+
+/* ── 输入框：实底 + 粗描边 + 聚焦糖果阴影 ── */
 .theme-input {
   color: var(--input-text-color);
-  border-color: var(--input-border-color);
+  background-color: var(--input-bg);
+  border: 3px solid var(--input-border-color);
+  box-shadow: var(--pixel-shadow-sm);
   transition:
-    color var(--theme-transition-duration) var(--theme-transition-easing),
-    border-color var(--theme-transition-duration) var(--theme-transition-easing);
+    box-shadow var(--theme-transition-fast) steps(3, end),
+    border-color var(--theme-transition-fast) linear,
+    background-color var(--theme-transition-fast) linear;
 }
 
 .theme-input::placeholder {
@@ -226,62 +360,126 @@ body::-webkit-scrollbar {
 }
 
 .theme-input:focus {
+  outline: none;
   border-color: var(--input-focus-border-color);
+  box-shadow: 3px 3px 0 var(--input-focus-border-color);
 }
 
 .theme-input-icon {
   color: var(--text-tertiary);
-  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
+  transition: color var(--theme-transition-duration) linear;
 }
 
+/* ── 主按钮：糖果块 + 按压手感 ── */
 .theme-button-primary {
   background-color: var(--button-primary-bg);
   color: var(--button-primary-text);
+  border: 3px solid var(--pixel-ink);
+  border-radius: 0;
+  box-shadow: var(--pixel-shadow-sm);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.25);
   transition:
-    background-color var(--theme-transition-duration) var(--theme-transition-easing),
-    color var(--theme-transition-duration) var(--theme-transition-easing),
-    transform var(--theme-transition-fast) var(--theme-transition-easing);
+    box-shadow var(--theme-transition-fast) steps(3, end),
+    transform var(--theme-transition-fast) steps(3, end),
+    background-color var(--theme-transition-fast) linear,
+    border-color var(--theme-transition-fast) linear,
+    color var(--theme-transition-fast) linear;
 }
 
-.theme-button-primary:hover {
-  filter: brightness(1.06);
+.theme-button-primary:hover:not(:disabled) {
+  background-color: var(--candy-pink-soft);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--pixel-ink);
 }
 
+.theme-button-primary:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--pixel-ink);
+}
+
+/* 可点击的软卡片按钮（切换页签、骰子、自定义等）——柠檬糖 chip */
+button.theme-card-soft {
+  background-color: var(--candy-yellow);
+  color: var(--pixel-ink);
+  border: 2px solid var(--pixel-ink);
+  box-shadow: 2px 2px 0 var(--pixel-ink);
+}
+
+button.theme-card-soft:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--pixel-ink);
+}
+
+button.theme-card-soft:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--pixel-ink);
+}
+
+/* 表单主 CTA（type=submit）——多巴胺主按钮，置于 chip 规则之后确保生效 */
+button[type='submit'] {
+  background-color: var(--candy-pink);
+  color: #ffffff;
+  border: 3px solid var(--pixel-ink);
+  border-radius: 0;
+  box-shadow: var(--pixel-shadow-sm);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+button[type='submit']:hover:not(:disabled) {
+  background-color: var(--candy-pink-soft);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--pixel-ink);
+}
+
+button[type='submit']:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--pixel-ink);
+}
+
+/* ── 卡片：白实底 + 粗描边 + 硬阴影 ── */
 .theme-card {
+  position: relative;
   background-color: var(--card-bg);
-  border: 1px solid var(--card-border);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  border: var(--pixel-border-w) solid var(--card-border);
+  border-radius: 0;
+  box-shadow: var(--pixel-shadow);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   transition:
-    background-color var(--theme-transition-duration) var(--theme-transition-easing),
-    border-color var(--theme-transition-duration) var(--theme-transition-easing),
-    color var(--theme-transition-duration) var(--theme-transition-easing);
+    background-color var(--theme-transition-duration) linear,
+    border-color var(--theme-transition-duration) linear,
+    color var(--theme-transition-duration) linear;
 }
 
 .theme-card-strong {
+  position: relative;
   background-color: var(--card-bg-strong);
-  border: 1px solid var(--card-border);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  border: var(--pixel-border-w) solid var(--card-border);
+  border-radius: 0;
+  box-shadow: var(--pixel-shadow);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   transition:
-    background-color var(--theme-transition-duration) var(--theme-transition-easing),
-    border-color var(--theme-transition-duration) var(--theme-transition-easing);
+    background-color var(--theme-transition-duration) linear,
+    border-color var(--theme-transition-duration) linear;
 }
 
 .theme-card-soft {
   background-color: var(--card-soft-bg);
-  border: 1px solid var(--card-border);
+  border: 2px solid var(--card-border);
+  border-radius: 0;
+  box-shadow: var(--pixel-shadow-sm);
   transition:
-    background-color var(--theme-transition-duration) var(--theme-transition-easing),
-    border-color var(--theme-transition-duration) var(--theme-transition-easing);
+    background-color var(--theme-transition-duration) linear,
+    border-color var(--theme-transition-duration) linear;
 }
 
 .theme-card-header {
   background-color: var(--card-soft-bg);
-  border-bottom: 1px solid var(--card-divider);
+  border-bottom: var(--pixel-border-w) solid var(--card-divider);
   transition:
-    background-color var(--theme-transition-duration) var(--theme-transition-easing),
-    border-color var(--theme-transition-duration) var(--theme-transition-easing);
+    background-color var(--theme-transition-duration) linear,
+    border-color var(--theme-transition-duration) linear;
 }
 
 .theme-card-divider {
@@ -290,7 +488,7 @@ body::-webkit-scrollbar {
 
 .theme-divider-bg {
   background-color: var(--card-divider);
-  transition: background-color var(--theme-transition-duration) var(--theme-transition-easing);
+  transition: background-color var(--theme-transition-duration) linear;
 }
 
 .theme-accent {
@@ -345,41 +543,19 @@ body::-webkit-scrollbar {
   border-color: var(--danger-border);
 }
 
+/* ── 顶栏：liquid-glass 类改为实底像素块 ── */
 .liquid-glass-shell {
   position: relative;
   overflow: hidden;
   isolation: isolate;
   background-color: var(--liquid-shell-bg);
-  backdrop-filter: saturate(1.45) blur(24px);
-  -webkit-backdrop-filter: saturate(1.45) blur(24px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
-.liquid-glass-shell::before {
-  content: '';
-  position: absolute;
-  inset: 1px;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.78;
-}
-
+.liquid-glass-shell::before,
 .liquid-glass-shell::after {
-  content: '';
-  position: absolute;
-  left: 12%;
-  right: 12%;
-  top: 0;
-  height: 1px;
-  pointer-events: none;
-  z-index: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--liquid-shell-specular) 50%,
-    transparent 100%
-  );
-  opacity: 0.8;
+  display: none;
 }
 
 .liquid-glass-shell > * {
@@ -388,31 +564,126 @@ body::-webkit-scrollbar {
 }
 
 .liquid-glass-header {
-  backdrop-filter: saturate(1.5) blur(22px);
-  -webkit-backdrop-filter: saturate(1.5) blur(22px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow:
+    0 3px 0 var(--candy-yellow),
+    0 6px 0 var(--pixel-shadow-color);
 }
 
 .liquid-glass-tabbar {
-  backdrop-filter: saturate(1.35) blur(26px);
-  -webkit-backdrop-filter: saturate(1.35) blur(26px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .liquid-glass-chat-shell {
-  backdrop-filter: saturate(1.4) blur(28px);
-  -webkit-backdrop-filter: saturate(1.4) blur(28px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .liquid-glass-chat-input {
   background-color: var(--liquid-chat-input-bg);
-  border: 1px solid var(--liquid-chat-input-border);
-  box-shadow:
-    inset 0 1px 0 var(--liquid-chat-input-highlight),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: saturate(1.25) blur(14px);
-  -webkit-backdrop-filter: saturate(1.25) blur(14px);
+  border: 3px solid var(--liquid-chat-input-border);
+  box-shadow: var(--pixel-shadow-sm);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .liquid-glass-chat-input:focus-within {
   background-color: var(--liquid-chat-input-focus-bg);
   border-color: var(--liquid-chat-input-focus-border);
+}
+
+/* ── 像素小装饰：卡片角落的糖果铆钉 ── */
+.theme-card::before,
+.theme-card-strong::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  background: var(--candy-yellow);
+  box-shadow:
+    -10px 0 0 var(--candy-pink),
+    -5px 5px 0 var(--candy-blue);
+  pointer-events: none;
+}
+
+/* 顶栏同为 theme-card，禁用铆钉避免与右侧按钮重叠 */
+header .theme-card::before,
+header .theme-card-strong::before {
+  display: none;
+}
+
+/* ── Leaflet 控件像素化 ── */
+.leaflet-bar,
+.leaflet-control-zoom a {
+  border-radius: 0 !important;
+  border: 2px solid var(--pixel-ink) !important;
+  box-shadow: var(--pixel-shadow-sm);
+  color: var(--text-primary) !important;
+  background: var(--card-bg) !important;
+  font-family: 'Fusion Pixel SC', monospace;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  border-radius: 0;
+  border: 2px solid var(--pixel-ink);
+  box-shadow: var(--pixel-shadow-sm);
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+
+/* ── 像素动画 ── */
+@keyframes pixel-pop {
+  0% {
+    transform: scale(0.92);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pixel-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes pixel-blink {
+  0%,
+  60%,
+  100% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0.35;
+  }
+}
+
+.pixel-float {
+  animation: pixel-float 2.4s steps(6, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pixel-float {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
